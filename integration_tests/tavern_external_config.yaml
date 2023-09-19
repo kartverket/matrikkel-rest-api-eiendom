@@ -1,0 +1,5 @@
+name: Tavern shared test variables
+description: Tavern shared test variables
+
+variables:
+    timeout: 5

@@ -1,0 +1,6 @@
+apispec==5.1.*
+Flask==2.0.*
+marshmallow==3.14.*
+psycopg2-binary==2.9.*
+webargs==8.0.*
+apispec-webframeworks==0.5.*

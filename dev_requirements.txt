@@ -1,0 +1,2 @@
+-r requirements.txt
+tavern==1.23.*

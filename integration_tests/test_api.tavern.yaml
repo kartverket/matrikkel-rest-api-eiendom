@@ -1,0 +1,718 @@
+
+test_name: eiendom med 3 teiger
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-339/42'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+          - properties:
+              objekttype: 'Teig'
+
+---
+
+test_name: takle 0 som et tall i matrikkelstrengsøk, komplett retur
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6/501/0/2'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        type: 'FeatureCollection'
+        features:
+          - type: 'Feature'
+            properties:
+              kommunenummer: '3413'
+              gardsnummer: 6
+              bruksnummer: 501
+              festenummer: 0
+              seksjonsnummer: 2
+              hovedområde: true
+              lokalid: 34281284
+              oppdateringsdato: "2020-06-16T03:58:58"
+              teigmedflerematrikkelenheter: false
+              uregistrertjordsameie: false
+              objekttype: 'Teig'
+              matrikkelnummertekst: "6/501/0/2"
+              nøyaktighetsklasseteig: "Gult"
+            geometry:
+              type: 'Point'
+              coordinates:
+                - 11.11041
+                - 60.78311
+
+
+---
+
+test_name: matrikkelsøk, komplett retur med område, ikke punkt
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6/518'
+        omrade: true
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        type: 'FeatureCollection'
+        features:
+          - type: 'Feature'
+            properties:
+              kommunenummer: '3413'
+              gardsnummer: 6
+              bruksnummer: 518
+              festenummer: 0
+              seksjonsnummer: 0
+              hovedområde: true
+              lokalid: 34281734
+              oppdateringsdato: "2020-06-16T03:58:58"
+              teigmedflerematrikkelenheter: false
+              uregistrertjordsameie: false
+              objekttype: 'Teig'
+              matrikkelnummertekst: "6/518"
+              nøyaktighetsklasseteig: "Gult"
+            geometry:
+              type: 'Polygon'
+              coordinates:
+                - !anylist
+
+
+---
+
+
+test_name: Søk på feilformatert matrikkelnummer
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6/501\0/2'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 400
+      json:
+        errors:
+          message: 'Ugyldig(e) tegn i søkeparameteret. Husk på at matrikkelnummer bruker skråstreker /, og ikke bakstreker (omvendt skråstrek) \.'
+
+
+---
+
+
+test_name: Søk på feilformatert matrikkelnummer, kun 2 elementer.
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 400
+      json:
+        errors:
+          message: 'Mangler skråstrek i matrikkelnummeret etter gardsnummeret.'
+
+
+---
+
+
+test_name: Søk på feilformatert matrikkelnummer, kun /.
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '/'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 400
+      json:
+        errors:
+          message: 'Feil i matrikkelnummeret, forventer en bindestrek mellom kommunenummer-gardsnummer'
+
+
+---
+
+test_name: Søk på matrikkelnummer med 0 treff
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '9999-555/22'
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        type: "FeatureCollection"
+        features: []
+
+---
+
+test_name: punktsøk, finn eiendommer i riktig distanse
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/punkt"
+      params:
+        nord: 6746481.09
+        ost: 286775.27
+        koordsys: 25833
+        radius: 135
+        treffPerSide: 50
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        eiendom:
+          - objekttype: 'Teig'
+            meterFraPunkt: 133
+
+---
+
+test_name: punktsøk, finn eiendom med "falsk" matrikkelnummer 0/1
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/punkt"
+      params:
+        nord: 58.51245
+        ost: 5.84620469
+        koordsys: 4258
+        radius: 10
+        treffPerSide: 50
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        eiendom:
+          - objekttype: 'Teig'
+            meterFraPunkt: 0
+            kommunenummer: '1119'
+            gardsnummer: null
+            bruksnummer: null
+            festenummer: null
+            seksjonsnummer: null
+
+---
+
+test_name: søk på de individuelle elementene i et matrikkelnummer
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        kommunenummer: 3413
+        gardsnummer: 6
+        bruksnummer: 501
+        festenummer: 0
+        seksjonsnummer: 2
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+          - properties:
+              objekttype: 'Teig'
+              matrikkelnummertekst: "6/501/0/2"
+
+
+---
+
+test_name: Hovedteig først. Treff på flere eiendom med flere teiger
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3454-107/5'
+        filtrer: "features.properties.hovedområde"
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+          - properties:
+              hovedområde: true
+          - properties:
+              hovedområde: false
+          - properties:
+              hovedområde: false
+          - properties:
+              hovedområde: false
+          - properties:
+              hovedområde: false
+          - properties:
+              hovedområde: false
+          - properties:
+              hovedområde: false
+
+---
+
+test_name: Seksjon uten areal, returner eiendommen som seksjonen tilhører i stedet for.
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6/518/0/2'
+      method: GET
+      timeout: 2
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        type: 'FeatureCollection'
+        features:
+          - type: 'Feature'
+            properties:
+              kommunenummer: '3413'
+              gardsnummer: 6
+              bruksnummer: 518
+              festenummer: 0
+              seksjonsnummer: 0
+              hovedområde: true
+              lokalid: 34281734
+              objekttype: 'Teig'
+              matrikkelnummertekst: "6/518"
+
+
+---
+
+test_name: Eiendom med både teig og anleggsprojeksjonsflate
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '0301-377/4'
+        filtrer: "features.properties.objekttype"
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+          - properties:
+              objekttype: 'Teig'
+          - properties:
+              objekttype: 'Anleggsprojeksjonsflate'
+
+
+---
+
+test_name: punktsøk, delt teig
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/punkt"
+      params:
+        nord: 60
+        ost: 11
+        koordsys: 4326
+        radius: 1
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        eiendom:
+          - objekttype: 'Teig'
+            meterFraPunkt: 0
+            teigmedflerematrikkelenheter: true
+            matrikkelnummertekst: "46/1,7"
+          - objekttype: 'Teig'
+            meterFraPunkt: 0
+            teigmedflerematrikkelenheter: true
+            matrikkelnummertekst: "46/1,7"
+
+---
+
+test_name: punktsøk, hent teiger innenfor radius
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/punkt/omrader"
+      params:
+        nord: 59.928
+        ost: 10.723
+        koordsys: 4258
+        radius: 10
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+          - properties:
+              meterFraPunkt: 0
+              matrikkelnummertekst: "215/81"
+        features:
+          - properties:
+              meterFraPunkt: 2
+              matrikkelnummertekst: "215/61"
+
+
+
+
+---
+
+test_name: Transformer respons, inkluder crs-element
+
+strict:
+  - headers:off
+  - json:off
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/geokoding"
+      params:
+        matrikkelnummer: '3413-6/501/0/2'
+        utkoordsys: 25833
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        crs:
+          type: 'name'
+          properties:
+            name: 'EPSG:25833'
+        type: FeatureCollection
+        features:
+          - type: 'Feature'
+            properties:
+              matrikkelnummertekst: "6/501/0/2"
+            geometry:
+              type: 'Point'
+              coordinates:
+                - 288280.5061
+                - 6744905.414
+
+
+---
+
+test_name: punktsøk, sjekk områdegeometri, kurver til lines
+
+strict:
+  - headers:off
+  - json:on
+
+stages:
+  - name: get
+    request:
+      url: "{tavern.env_vars.TAVERN_TEST_URL}/punkt/omrader"
+      params:
+        nord: 63.42007090
+        ost: 10.437693
+        koordsys: 4258
+        radius: 1
+      method: GET
+      timeout: 1
+      headers:
+        content-type: application/json
+    response:
+      status_code: 200
+      json:
+        features:
+        - geometry:
+            coordinates:
+            - - - 10.4371445
+                - 63.4199204
+              - - 10.4375145
+                - 63.420236
+              - - 10.4376031
+                - 63.4202152
+              - - 10.4376054
+                - 63.4202171
+              - - 10.437608
+                - 63.420219
+              - - 10.4376107
+                - 63.4202208
+              - - 10.4376137
+                - 63.4202226
+              - - 10.4376168
+                - 63.4202243
+              - - 10.4376202
+                - 63.4202259
+              - - 10.4376237
+                - 63.4202274
+              - - 10.4376273
+                - 63.4202289
+              - - 10.4376311
+                - 63.4202303
+              - - 10.4376351
+                - 63.4202316
+              - - 10.4376392
+                - 63.4202328
+              - - 10.4376435
+                - 63.4202339
+              - - 10.4376478
+                - 63.4202349
+              - - 10.4376523
+                - 63.4202359
+              - - 10.4376568
+                - 63.4202367
+              - - 10.4376615
+                - 63.4202374
+              - - 10.4376662
+                - 63.4202381
+              - - 10.4376709
+                - 63.4202386
+              - - 10.4376758
+                - 63.420239
+              - - 10.4376806
+                - 63.4202393
+              - - 10.4376855
+                - 63.4202395
+              - - 10.4376904
+                - 63.4202396
+              - - 10.4376954
+                - 63.4202396
+              - - 10.4377003
+                - 63.4202394
+              - - 10.4377052
+                - 63.4202392
+              - - 10.43771
+                - 63.4202389
+              - - 10.4377148
+                - 63.4202384
+              - - 10.4377196
+                - 63.4202379
+              - - 10.4377243
+                - 63.4202372
+              - - 10.4377289
+                - 63.4202365
+              - - 10.4377334
+                - 63.4202356
+              - - 10.4377379
+                - 63.4202347
+              - - 10.4377387
+                - 63.4202345
+              - - 10.4379533
+                - 63.4201846
+              - - 10.4374979
+                - 63.4197913
+              - - 10.4372961
+                - 63.4198155
+              - - 10.4372446
+                - 63.4198217
+              - - 10.4372371
+                - 63.4198228
+              - - 10.4372297
+                - 63.419824
+              - - 10.4372225
+                - 63.4198254
+              - - 10.4372155
+                - 63.419827
+              - - 10.4372086
+                - 63.4198287
+              - - 10.4372019
+                - 63.4198306
+              - - 10.4371955
+                - 63.4198326
+              - - 10.4371893
+                - 63.4198347
+              - - 10.4371833
+                - 63.419837
+              - - 10.4371775
+                - 63.4198394
+              - - 10.4371721
+                - 63.419842
+              - - 10.4371669
+                - 63.4198446
+              - - 10.437162
+                - 63.4198474
+              - - 10.4371575
+                - 63.4198503
+              - - 10.4371532
+                - 63.4198532
+              - - 10.4371493
+                - 63.4198563
+              - - 10.4371457
+                - 63.4198594
+              - - 10.4371425
+                - 63.4198626
+              - - 10.4371396
+                - 63.4198659
+              - - 10.4371371
+                - 63.4198693
+              - - 10.437135
+                - 63.4198726
+              - - 10.4371332
+                - 63.4198761
+              - - 10.4371318
+                - 63.4198795
+              - - 10.4371308
+                - 63.419883
+              - - 10.4371302
+                - 63.4198866
+              - - 10.4371299
+                - 63.4198901
+              - - 10.4371301
+                - 63.4198936
+              - - 10.4371306
+                - 63.4198971
+              - - 10.4371315
+                - 63.4199006
+              - - 10.4371328
+                - 63.4199041
+              - - 10.4371345
+                - 63.4199075
+              - - 10.4371366
+                - 63.4199109
+              - - 10.437139
+                - 63.4199143
+              - - 10.4371418
+                - 63.4199176
+              - - 10.4371445
+                - 63.4199204
+            type: Polygon
+          properties:
+            meterFraPunkt: 0
+            kommunenummer: '5001'
+            gardsnummer: 55
+            bruksnummer: 55
+            festenummer: 0
+            seksjonsnummer: 0
+            matrikkelnummertekst: 55/55
+            objekttype: Teig
+            hovedområde: true
+            lokalid: 278005660
+            oppdateringsdato: '2020-06-16T07:12:12'
+            teigmedflerematrikkelenheter: false
+            uregistrertjordsameie: false
+            nøyaktighetsklasseteig: Gult
+          type: Feature
+        type: FeatureCollection
+
+
