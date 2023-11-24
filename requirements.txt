@@ -4,3 +4,4 @@ marshmallow==3.14.*
 psycopg2-binary==2.9.*
 webargs==8.0.*
 apispec-webframeworks==0.5.*
+Werkzeug==2.2.2
