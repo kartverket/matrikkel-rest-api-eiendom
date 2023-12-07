@@ -6,3 +6,4 @@ webargs==8.0.*
 apispec-webframeworks==0.5.*
 gunicorn==21.2.0
 JSON-log-formatter==0.5.*
+Werkzeug==3.0.*

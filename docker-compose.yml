@@ -1,0 +1,16 @@
+version: "3.9"
+name: "eiendom-database"
+services:
+  database:
+    image: postgis/postgis
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=eiendom
+      - POSTGRES_PASSWORD=eiendom
+      - TZ=Europe/Oslo
+      - PGTZ=Europe/Oslo
+    volumes:
+      - db_volume:/var/lib/postgresql
+volumes:
+  db_volume: {}
