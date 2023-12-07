@@ -10,7 +10,6 @@ from app import models as md
 from app import database as db
 from app import apispec_generate
 from app import utils as ut
-import config as cf
 
 
 logger = logging.getLogger(__name__)
@@ -60,14 +59,15 @@ def sok_eiendom(args):
     logger.debug('Search parameters: %s' % request.args.to_dict())
     query_where, query_input = ut.ConstructSql(args).geolokasjon_query()
     query = db.Queries(return_srid).eiendom_sok(teig=teig, where=query_where)
-    output = db.DbConn(cf.dbc).perform_query_format_response(query, query_input)
+    output = db.DbConn().perform_query_format_response(query, query_input)
     # if a seksjonsnummer lacks geometry, get it from the property which "owns" it
     if not output and 'seksjonsnummer' in query_where.lower():
         construct_sql = ut.ConstructSql(args)
         construct_sql.seksjonsnummer = None
         query_where, query_input = construct_sql.geolokasjon_query()
-        query = db.Queries(return_srid).eiendom_sok(teig=teig, where=query_where)
-        output = db.DbConn(cf.dbc).perform_query_format_response(query, query_input)
+        query = db.Queries(return_srid).eiendom_sok(
+            teig=teig, where=query_where)
+        output = db.DbConn().perform_query_format_response(query, query_input)
     output = ut.create_geojson_output(output, 'rep_geojson', return_srid)
 
     filterModel = ut.filter_model(md.GeoKodingRespons, filters)
@@ -107,8 +107,9 @@ def get_eiendom_near_point(args):
     search_string = ut.decode_query_string(request.query_string)
     logger.debug('Search parameters: %s' % request.args.to_dict())
     query_input = ost, nord, koordsys, radius
-    output = db.DbConn(cf.dbc).perform_query_format_response(query, query_input)
-    formatted_output = ut.format_metadata_output(output, page, hits_per_page, search_string)
+    output = db.DbConn().perform_query_format_response(query, query_input)
+    formatted_output = ut.format_metadata_output(
+        output, page, hits_per_page, search_string)
     filterModel = ut.filter_model(md.PunktRespons, filters)
     return ut.return_jsonify_dump(filterModel, formatted_output, many=False)
 
@@ -143,7 +144,7 @@ def get_eiendom_teig_near_point(args):
     search_string = ut.decode_query_string(request.query_string)
     logger.debug('Search parameters: %s' % request.args.to_dict())
     query_input = ost, nord, koordsys, radius
-    output = db.DbConn(cf.dbc).perform_query_format_response(query, query_input)
+    output = db.DbConn().perform_query_format_response(query, query_input)
     formatted_output = ut.create_geojson_output(output, 'geojson', return_srid)
     filterModel = ut.filter_model(md.GeoKodingRespons, filters)
     return ut.return_jsonify_dump(filterModel, formatted_output, many=False)

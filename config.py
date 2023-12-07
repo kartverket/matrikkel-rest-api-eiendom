@@ -1,16 +1,14 @@
 import os
 
-database = 'matrikkeleneiendom'
-user = 'dbles'
-port = 5432
-host = os.environ.get('EIENDOM_DB_HOST')
-password = os.environ.get('PG_PASS_EIENDOM')
+db_user = os.environ.get('EIENDOM_DB_USER', default='eiendom')
+db_password = os.environ.get('EIENDOM_DB_PASSWORD', default="eiendom")
+db_uri = os.environ.get('EIENDOM_DB_URI',
+                        default="postgresql://localhost:5432/eiendom")
+app_ingress = os.environ.get("EIENDOM_INGRESS", default="localhost:5000")
 
-
-dbc = {'database': database, 'user': user, 'port': port, 'host': host, 'password': password}
-
+is_dev = True if app_ingress == "localhost:5000" else False
 set_json_as_ascii = False
-locale_choice = 'nn_NO.utf8'
+locale_choice = 'no_NO.UTF-8'
 logging_level = os.environ.get('EIENDOM_API_LOG_LEVEL', 'ERROR')
 sort_json_keys = False
 

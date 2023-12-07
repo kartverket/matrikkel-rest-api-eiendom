@@ -13,10 +13,18 @@ logger = logging.getLogger(__name__)
 class DbConn():
     """Connect to the db, perform a query and format the response"""
 
-    def __init__(self, dbc):
+    def __init__(self):
         logger.info('Initializing database connection.')
-        self.conn = psycopg2.connect(**dbc)
-        self.cur = self.conn.cursor()
+        try:
+            self.conn = psycopg2.connect(
+                dsn=cf.db_uri, user=cf.db_user, password=cf.db_password)
+            self.cur = self.conn.cursor()
+        except psycopg2.errors.TooManyConnections:
+            abort(500, "Databasen opplever for mange tilkoblinger, vennligst vent litt.")
+        except Exception as e:
+            logging.error(
+                "Exception under databaseconnection: {}".format(e.message))
+            abort(500, "Noe gikk galt, prøv igjen senere")
 
     def perform_query_format_response(self, query, userInput=False):
         queryResult = self._execute_query(query, userInput)
@@ -26,7 +34,8 @@ class DbConn():
         """userInput is included here because of protection against sql-injection when
         the parameters are inserted as a tuple in the cur.execute-command.
         """
-        logger.debug('Query to execute: %s. With input: %s' % (query, userInput))
+        logger.debug('Query to execute: %s. With input: %s' %
+                     (query, userInput))
         logger.info(f'Executing query')
         if not isinstance(userInput, tuple):
             userInput = (userInput,)
@@ -36,7 +45,8 @@ class DbConn():
             else:
                 self.cur.execute(query)
         except Exception as e:
-            logger.error(f'Encountered exception when performing query with input: "{userInput}" : {e}')
+            logger.error(
+                f'Encountered exception when performing query with input: "{userInput}" : {e}')
             if "srid" in str(e).lower():
                 abort(400, "Koordinatsystemet/SRID er ikke støttet.")
             else:
@@ -63,8 +73,10 @@ class DbConn():
 
     def __del__(self):
         """close connection if not already done"""
-        if self.conn:
+        try:
             self.conn.close()
+        except AttributeError:
+            return
 
 
 class Queries:
@@ -87,9 +99,11 @@ class Queries:
 
     def eiendom_sok(self, teig=False, where=''):
         if teig:
-            geom = 'ST_Asgeojson(ST_Transform(omrade_4258_curve_to_line, {0}), 7, 0)::json as rep_geojson,'.format(self.return_srid)
+            geom = 'ST_Asgeojson(ST_Transform(omrade_4258_curve_to_line, {0}), 7, 0)::json as rep_geojson,'.format(
+                self.return_srid)
         else:
-            geom = 'ST_Asgeojson(ST_Transform(representasjonspunkt, {0}), 5, 0)::json as rep_geojson,'.format(self.return_srid)
+            geom = 'ST_Asgeojson(ST_Transform(representasjonspunkt, {0}), 5, 0)::json as rep_geojson,'.format(
+                self.return_srid)
         return """
                     SELECT
                         objtype,
