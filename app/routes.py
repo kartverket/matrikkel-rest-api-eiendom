@@ -15,7 +15,26 @@ from app import utils as ut
 logger = logging.getLogger(__name__)
 
 
+class PrefixMiddleware(object):
+    def __init__(self, app, prefix=''):
+        self.app = app
+        self.prefix = prefix
+
+    def __call__(self, environ, start_response):
+        if environ['PATH_INFO'].startswith(self.prefix):
+            environ['PATH_INFO'] = environ['PATH_INFO'][len(self.prefix):]
+            environ['SCRIPT_NAME'] = self.prefix
+            return self.app(environ, start_response)
+        else:
+            start_response('404', [('Content-Type', 'text/plain')])
+            return ["This route does not exist.".encode()]
+
+
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/eiendom/v1')
+
 # Return validation errors as JSON
+
+
 @app.errorhandler(422)
 @app.errorhandler(400)
 def handle_error(err):
