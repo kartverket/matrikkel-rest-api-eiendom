@@ -1,0 +1,13 @@
+name: Promote Test to Prod
+on: workflow_dispatch
+
+jobs:
+  deploy-argo:
+    uses: kartverket/smia-apps/.github/workflows/promote-app.yml@main
+    with:
+      application: eiendom
+      from_env: test
+      to_env: prod
+      namespace: smia-tjenester-main
+    secrets:
+      PAT_TOKEN: ${{ secrets.PAT_ARGOCD }}

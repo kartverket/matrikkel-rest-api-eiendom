@@ -1,0 +1,22 @@
+name: Build and Test
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Build docker image and push
+        id: build
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: false
