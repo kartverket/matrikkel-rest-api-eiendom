@@ -6,6 +6,8 @@ db_uri = os.environ.get('EIENDOM_DB_URI',
                         default="postgresql://localhost:5432/eiendom")
 app_ingress = os.environ.get("EIENDOM_INGRESS", default="localhost:5000")
 
+basepath = "/eiendom/v1"
+
 is_dev = True if app_ingress == "localhost:5000" else False
 set_json_as_ascii = False
 locale_choice = 'no_NO.UTF-8'
