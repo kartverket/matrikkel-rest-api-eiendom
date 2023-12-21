@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 from marshmallow import Schema, fields, validate
 from marshmallow.validate import Range
-import logging
 
 import config as cf
-
-logging = logging.getLogger(__name__)
 
 
 # Standard models
@@ -71,7 +68,8 @@ class Kommuner(Schema):
 class Representasjonspunkt(Schema):
     øst = fields.Float(description='', attribute='representasjonspunkt_ost')
     nord = fields.Float(description='', attribute='representasjonspunkt_nord')
-    koordsys = fields.Int(default=cf.db_srid, description='Koordinatsystemet til representasjonspunktet, oppgis som en SRID (altså tall-delen av en EPSG-kode, f.eks. 4258 eller 25833).')
+    koordsys = fields.Int(
+        default=cf.db_srid, description='Koordinatsystemet til representasjonspunktet, oppgis som en SRID (altså tall-delen av en EPSG-kode, f.eks. 4258 eller 25833).')
 
     class Meta:
         ordered = True
@@ -109,11 +107,13 @@ class InputReturnSrid(Schema):
 
 
 class InputFiltrer(Schema):
-    filtrer = fields.Str(description='Vis kun de elementene du vil ha i returen. Kommaseparert liste med nøkler. For å hente ut underobjekter bruk "."-notasjon, f.eks. &filtrer=metadata.side')
+    filtrer = fields.Str(
+        description='Vis kun de elementene du vil ha i returen. Kommaseparert liste med nøkler. For å hente ut underobjekter bruk "."-notasjon, f.eks. &filtrer=metadata.side')
 
 
 class MatrikkelNummerSchema(Schema):
-    matrikkelnummer = fields.String(description="Den offisielle benevnelsen for en eiendom. Fullstendig matrikkelnummer består av kommunenummer, gardsnummer, bruksnummer, eventuelt festenummer, eventuelt seksjonsnummer, f.eks 3413-325/2 (grunneiendom), 3413-325/2/1 (festegrunn) eller 3413-6/501/0/2 (seksjon)")
+    matrikkelnummer = fields.String(
+        description="Den offisielle benevnelsen for en eiendom. Fullstendig matrikkelnummer består av kommunenummer, gardsnummer, bruksnummer, eventuelt festenummer, eventuelt seksjonsnummer, f.eks 3413-325/2 (grunneiendom), 3413-325/2/1 (festegrunn) eller 3413-6/501/0/2 (seksjon)")
 
 
 class InputEiendom(MatrikkelnummerDeler, InputTeigOrRepresentasjonspunkt, MatrikkelNummerSchema):
@@ -145,27 +145,36 @@ class InputPunktSokSchema(InputMetadata, InputFiltrer, InputReturnSrid, InputPun
 
 class InputPunktSokGeojsonSchema(InputFiltrer, InputReturnSrid, InputPunktSok):
     maksTreff = fields.Integer(required=False, missing=50, validate=validate.Range(min=1, max=500),
-            description='Maks antall objekter i GeoJSON-featurecollection responsen. Maksimum er 500.')
+                               description='Maks antall objekter i GeoJSON-featurecollection responsen. Maksimum er 500.')
 
 # Output
 
 
 class ReturDeltSchema(MatrikkelnummerDeler):
-    matrikkelnummertekst = fields.String(description='Generert tekst ut fra hvilken matrikkelenhet teigen tilhører. Eventuelt flere matrikkelnummere skyldes manglende, uavklarte grenser eller uregistrert jordsameie.')
-    objekttype = fields.String(description='Stedfesting/geometri hentes fra to objekttyper, teig eller anleggsprojeksjonsflate. Den siste er «fotavtrykk» av volumer som fins over eller under teiger på terrenget', attribute='objtype')
-    hovedområde = fields.Boolean(description='Angir om området er teigens eller anleggsprojeksjonens hovedteig/hovedflate.', attribute='hoved')
-    lokalid = fields.Integer(description='Lokal identifikator, tildelt av dataleverandør/dataforvalter (her matrikkelsystemet, Kartverket).')
-    oppdateringsdato = fields.DateTime(description='dato for siste endring på data-objektet i matrikkelsystemet', format='%Y-%m-%dT%H:%M:%M')
-    teigmedflerematrikkelenheter = fields.Boolean(description='Teigen mangler indre avgrensing mellom de registrerte matrikkelnummerene')
-    uregistrertjordsameie = fields.Boolean(description='De registrerte matrikkelnummerene har andel i teigen')
-    nøyaktighetsklasseteig = fields.String(description='Grov klassifisering (trafikklys) av stedfestingsnøyaktighet. (Grønt = ok, gult = sjekk!, rødt = store mangler)', attribute='noyaktighetsklasseteig')
+    matrikkelnummertekst = fields.String(
+        description='Generert tekst ut fra hvilken matrikkelenhet teigen tilhører. Eventuelt flere matrikkelnummere skyldes manglende, uavklarte grenser eller uregistrert jordsameie.')
+    objekttype = fields.String(
+        description='Stedfesting/geometri hentes fra to objekttyper, teig eller anleggsprojeksjonsflate. Den siste er «fotavtrykk» av volumer som fins over eller under teiger på terrenget', attribute='objtype')
+    hovedområde = fields.Boolean(
+        description='Angir om området er teigens eller anleggsprojeksjonens hovedteig/hovedflate.', attribute='hoved')
+    lokalid = fields.Integer(
+        description='Lokal identifikator, tildelt av dataleverandør/dataforvalter (her matrikkelsystemet, Kartverket).')
+    oppdateringsdato = fields.DateTime(
+        description='dato for siste endring på data-objektet i matrikkelsystemet', format='%Y-%m-%dT%H:%M:%M')
+    teigmedflerematrikkelenheter = fields.Boolean(
+        description='Teigen mangler indre avgrensing mellom de registrerte matrikkelnummerene')
+    uregistrertjordsameie = fields.Boolean(
+        description='De registrerte matrikkelnummerene har andel i teigen')
+    nøyaktighetsklasseteig = fields.String(
+        description='Grov klassifisering (trafikklys) av stedfestingsnøyaktighet. (Grønt = ok, gult = sjekk!, rødt = store mangler)', attribute='noyaktighetsklasseteig')
 
     class Meta:
         ordered = True
 
 
 class PunktDistanse(Schema):
-    meterFraPunkt = fields.Int(description="Distanse i meter til punktet det ble søkt etter.", attribute='distanse')
+    meterFraPunkt = fields.Int(
+        description="Distanse i meter til punktet det ble søkt etter.", attribute='distanse')
 
 
 class GeokodingPropertiesSchema(ReturDeltSchema, PunktDistanse):
@@ -174,14 +183,19 @@ class GeokodingPropertiesSchema(ReturDeltSchema, PunktDistanse):
 
 
 class PunktSchema(ReturDeltSchema, PunktDistanse):
-    representasjonspunkt = fields.Nested(Representasjonspunkt, description='Punktet ligger innenfor teigens eller flatens avgrensing.', attribute='representasjonspunkt_json')
+    representasjonspunkt = fields.Nested(
+        Representasjonspunkt, description='Punktet ligger innenfor teigens eller flatens avgrensing.', attribute='representasjonspunkt_json')
 
 
 class MetadataSchema(InputMetadata):
-    totaltAntallTreff = fields.Integer(description='Antall treff som søket returnerte.')
-    viserFra = fields.Integer(description='Viser treff fra objekt nummer X i responsen.')
-    viserTil = fields.Integer(description='Viser treff til objekt nummer X i responsen.')
-    sokeStreng = fields.String(description='Søkestrengen som ble sendt inn til API-et.')
+    totaltAntallTreff = fields.Integer(
+        description='Antall treff som søket returnerte.')
+    viserFra = fields.Integer(
+        description='Viser treff fra objekt nummer X i responsen.')
+    viserTil = fields.Integer(
+        description='Viser treff til objekt nummer X i responsen.')
+    sokeStreng = fields.String(
+        description='Søkestrengen som ble sendt inn til API-et.')
 
 
 class ReturMetadata(Schema):
