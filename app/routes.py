@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import re
 
 from flask import request, jsonify, render_template
 from prometheus_flask_exporter import PrometheusMetrics
