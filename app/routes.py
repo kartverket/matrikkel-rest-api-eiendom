@@ -11,6 +11,7 @@ from app import models as md
 from app import database as db
 from app import apispec_generate
 from app import utils as ut
+import config as cf
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ class PrefixMiddleware(object):
 
 metrics = PrometheusMetrics(app)
 
-app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/eiendom/v1')
+app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=cf.basepath)
 
 # Return validation errors as JSON
 
