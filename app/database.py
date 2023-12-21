@@ -23,7 +23,7 @@ class DbConn():
             abort(500, "Databasen opplever for mange tilkoblinger, vennligst vent litt.")
         except Exception as e:
             logger.error(
-                "Exception under databaseconnection: {}".format(e.message))
+                "Exception occured while connecting to database: {}".format(e))
             abort(500, "Noe gikk galt, prøv igjen senere")
 
     def perform_query_format_response(self, query, userInput=False):
