@@ -3,7 +3,7 @@
 import logging
 import re
 
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, make_response
 from prometheus_flask_exporter import PrometheusMetrics
 from webargs.flaskparser import use_args
 
@@ -37,12 +37,12 @@ metrics = PrometheusMetrics(app)
 app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix='/eiendom/v1')
 
 
-
 @app.before_request
 def create_generalized_path():
     # Capture the URL rule pattern instead of the actual request path
     rule_pattern = request.url_rule.rule if request.url_rule else request.path
-    generalized_path = re.sub(r'<[^>]*>', ':id', rule_pattern)  # Replace dynamic parts with :id
+    # Replace dynamic parts with :id
+    generalized_path = re.sub(r'<[^>]*>', ':id', rule_pattern)
     request.generalized_path = generalized_path
 
 
@@ -201,19 +201,40 @@ def openapi_json():
 def swagger_ui():
     return render_template('swagger-ui.html')
 
+
 metrics.register_default(
     metrics.counter(
         'flask_http_request_status_and_path', 'Request count by status and path',
-        labels={'status': lambda r: r.status_code, 'path': lambda: request.generalized_path, 'resource': lambda: request.path}
+        labels={'status': lambda r: r.status_code,
+                'path': lambda: request.generalized_path, 'resource': lambda: request.path}
     )
 )
 
 metrics.register_default(
     metrics.gauge(
         'flask_http_request_time_gauge', 'Time used on requests',
-        labels={'path': lambda: request.generalized_path, 'resource': lambda: request.path}
+        labels={'path': lambda: request.generalized_path,
+                'resource': lambda: request.path}
     )
 )
+
+
+@app.route('/healthx')
+def liveness():
+    response = make_response()
+    response.status_code = 200
+    return response
+
+
+@app.route('/healthz')
+def readiness():
+    response = make_response()
+    if db.DbConn().perform_query_format_response(db.Queries.readiness()):
+        response.status_code = 200
+    else:
+        response.status_code = 500
+    return response
+
 
 if __name__ == '__main__':
     app.run(debug=False)  # Start a development server
