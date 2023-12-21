@@ -2,7 +2,7 @@
 
 import logging
 
-from flask import request, jsonify, render_template
+from flask import request, jsonify, render_template, make_response
 from prometheus_flask_exporter import PrometheusMetrics
 from webargs.flaskparser import use_args
 
@@ -190,6 +190,20 @@ def openapi_json():
 def swagger_ui():
     return render_template('swagger-ui.html')
 
+@app.route('/healthz')
+def readiness():
+    response = make_response()
+    response.status_code = 200
+    return response
+    
+@app.route('/healthx')
+def liveness():
+    response = make_response()
+    if db.DbConn().perform_query_format_response(db.Queries.readiness()):
+        response.status_code = 200
+    else:
+        response.status_code = 500
+    return response
 
 if __name__ == '__main__':
     app.run(debug=False)  # Start a development server
