@@ -97,6 +97,10 @@ class Queries:
         else:
             self.rep_point = """representasjonspunkt_json"""
 
+
+    def readiness():
+        return 'SELECT 1;'
+    
     def eiendom_sok(self, teig=False, where=''):
         if teig:
             geom = 'ST_Asgeojson(ST_Transform(omrade_4258_curve_to_line, {0}), 7, 0)::json as rep_geojson,'.format(
