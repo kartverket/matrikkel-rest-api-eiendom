@@ -202,12 +202,14 @@ def openapi_json():
 def swagger_ui():
     return render_template('swagger-ui.html')
 
+
 @app.route('/healthx')
 def liveness():
     response = make_response()
     response.status_code = 200
     return response
-    
+
+
 @app.route('/healthz')
 def readiness():
     response = make_response()
@@ -216,6 +218,7 @@ def readiness():
     else:
         response.status_code = 500
     return response
+
 
 metrics.register_default(
     metrics.counter(
@@ -232,23 +235,6 @@ metrics.register_default(
                 'resource': lambda: request.path}
     )
 )
-
-
-@app.route('/healthx')
-def liveness():
-    response = make_response()
-    response.status_code = 200
-    return response
-
-
-@app.route('/healthz')
-def readiness():
-    response = make_response()
-    if db.DbConn().perform_query_format_response(db.Queries.readiness()):
-        response.status_code = 200
-    else:
-        response.status_code = 500
-    return response
 
 
 if __name__ == '__main__':
