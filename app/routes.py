@@ -190,14 +190,14 @@ def openapi_json():
 def swagger_ui():
     return render_template('swagger-ui.html')
 
-@app.route('/healthz')
-def readiness():
+@app.route('/healthx')
+def liveness():
     response = make_response()
     response.status_code = 200
     return response
     
-@app.route('/healthx')
-def liveness():
+@app.route('/healthz')
+def readiness():
     response = make_response()
     if db.DbConn().perform_query_format_response(db.Queries.readiness()):
         response.status_code = 200
