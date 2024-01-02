@@ -23,8 +23,8 @@ Obs. Eiendomskartet i matrikkelen kan være ufullstendig eller upresist.
 
 Det er ikke nødvendig med innlogging/autorisasjon for å bruke APIet.
 
-Medio desember 2023 ble APIet flyttet til et nytt endepunkt som er tilgjengelig på <a href="https://api.kartverket.no/kommuneinfo/v1">https://api.kartverket.no/kommuneinfo/v1</a>.
-Det tidligere endepunktet <a href="https://ws.geonorge.no/kommuneinfo/v1">https://ws.geonorge.no/kommuneinfo/v1</a> vil være tilgjengelig inntil videre, og vil fungere som en proxy til det nye endepunktet.
+Medio desember 2023 ble APIet flyttet til et nytt endepunkt som er tilgjengelig på <a href="https://api.kartverket.no/eiendom/v1">https://api.kartverket.no/eiendom/v1</a>.
+Det tidligere endepunktet <a href="https://ws.geonorge.no/eiendom/v1">https://ws.geonorge.no/eiendom/v1</a> vil være tilgjengelig inntil videre, og vil fungere som en proxy til det nye endepunktet.
 Vi anbefaler likevel å bytte til det nye endepunktet.
 
 Større eller ikke-kompatible endringer i APIet vil bli annonsert med minst 3 måneder forvarsel på <a href="https://status.kartverket.no">https://status.kartverket.no</a>.
