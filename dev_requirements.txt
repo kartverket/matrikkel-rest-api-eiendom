@@ -1,2 +1,2 @@
 -r requirements.txt
-tavern==1.23.*
+tavern==2.9.*
