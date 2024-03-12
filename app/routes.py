@@ -33,7 +33,16 @@ class PrefixMiddleware(object):
             return ["This route does not exist.".encode()]
 
 
-metrics = PrometheusMetrics(app)
+def generalized_path(request):
+    # Capture the URL rule pattern instead of the actual request path
+    rule_pattern = request.url_rule.rule if request.url_rule else request.path
+    # Replace dynamic parts with :id
+    generalized_path = re.sub(r'<[^>]*>', ':id', rule_pattern)
+    return generalized_path
+
+
+metrics = PrometheusMetrics(
+    app, default_latency_as_histogram=False, group_by=generalized_path)
 
 app.wsgi_app = PrefixMiddleware(app.wsgi_app, prefix=cf.basepath)
 
@@ -218,23 +227,6 @@ def readiness():
     else:
         response.status_code = 500
     return response
-
-
-metrics.register_default(
-    metrics.counter(
-        'flask_http_request_status_and_path', 'Request count by status and path',
-        labels={'status': lambda r: r.status_code,
-                'path': lambda: request.generalized_path, 'resource': lambda: request.path}
-    )
-)
-
-metrics.register_default(
-    metrics.gauge(
-        'flask_http_request_time_gauge', 'Time used on requests',
-        labels={'path': lambda: request.generalized_path,
-                'resource': lambda: request.path}
-    )
-)
 
 
 if __name__ == '__main__':
