@@ -6,8 +6,9 @@ jobs:
     uses: kartverket/smia-apps/.github/workflows/promote-app.yml@main
     with:
       application: eiendom
-      from_env: test
+      from_env: dev
       to_env: prod
       namespace: smia-tjenester-main
+      extra_namespace: smiatest-tjenester-main
     secrets:
       PAT_TOKEN: ${{ secrets.PAT_ARGOCD }}
