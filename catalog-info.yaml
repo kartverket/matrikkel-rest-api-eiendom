@@ -14,32 +14,6 @@ spec:
   - "matrikkel-rest-api-eiendom-api"
 ---
 apiVersion: "backstage.io/v1alpha1"
-kind: "Group"
-metadata:
-  name: "security_champion_matrikkel-rest-api-eiendom"
-  title: "Security Champion matrikkel-rest-api-eiendom"
-spec:
-  type: "security_champion"
-  parent: "eiendom_security_champions"
-  members:
-  - "lislei"
-  children:
-  - "resource:matrikkel-rest-api-eiendom"
----
-apiVersion: "backstage.io/v1alpha1"
-kind: "Resource"
-metadata:
-  name: "matrikkel-rest-api-eiendom"
-  links:
-  - url: "https://github.com/kartverket/matrikkel-rest-api-eiendom"
-    title: "matrikkel-rest-api-eiendom på GitHub"
-spec:
-  type: "repo"
-  owner: "security_champion_matrikkel-rest-api-eiendom"
-  dependencyOf:
-  - "component:matrikkel-rest-api-eiendom"
----
-apiVersion: "backstage.io/v1alpha1"
 kind: "API"
 metadata:
   name: "matrikkel-rest-api-eiendom-api"
