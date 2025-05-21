@@ -6,5 +6,5 @@
 
 # Sikkerhetrelaterte filer
 /.github/CODEOWNERS @kartverket/matrikkel-admin
-/.security/ @lislei
+/.security/ @kartverket/matrikkel-admin
 catalog-info.yaml @kartverket/matrikkel-admin
