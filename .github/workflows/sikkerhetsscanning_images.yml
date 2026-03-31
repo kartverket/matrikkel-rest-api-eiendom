@@ -1,0 +1,30 @@
+name: Sikkerhetsscanning av images
+
+on:
+    workflow_dispatch:
+    schedule:
+        - cron: '00 1 * * *'  # 01:00 each day.
+
+jobs:
+    pharos:
+        name: Run Pharos
+        permissions:
+            actions: read
+            packages: read
+            contents: read
+            security-events: write
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Finn siste GHCR image-tag
+              id: latest
+              uses: kartverket/matrikkel-actions/find-latest-image@main
+              with:
+                  image: eiendom # GHCR pakkenavn
+
+            - name: Run Pharos
+              uses: kartverket/pharos@599d3fe4af8bae19fbfda831662e90ee1c406ec2 # v0.6.3
+              with:
+                trivy_category: eiendom
+                disable_severity_check: 'true' # Ikke blokker byggeløyper ved evt sårbarheter!
+                image_url: ghcr.io/kartverket/eiendom:${{ steps.latest.outputs.tag }}
