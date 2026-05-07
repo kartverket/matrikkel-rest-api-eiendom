@@ -1,10 +1,11 @@
 # Eiendoms API
 
+API fra Kartverket for geokoding eller lokalisering av eiendommer. Finn eiendommer ved en posisjon, eller finn posisjonen til et matrikkelnummer.
+I dette APIet er eiendommer definert som matrikkelenheter med avgrensing i kartet. Datagrunnlaget har vanligvis et døgn forsinkelse fra Matrikkelen.
+
 ## Deployment etc
 
-- API-et kjører vha gunicorn og systemd. Bruk den rutinen i jenkins.
-- Det vil si servere rin-te0626 (stage), rib-ap0624 og ric-ap0625 (Prod)
-- wstest-urlen peker på prodserverne for å tilgjengeliggjøre test utad
+- Bygg og deploy skjer vha. build-push-deploy og promote-test-prod workflows.
 
 # Testing
 For å teste lokalt:
@@ -37,5 +38,3 @@ Etter at du har aktivert venv:
     - Alt 2: Ikke returnere noenting (eiendommen har jo i realiteten ikke noe representasjonspunkt).
     - Alt 3: returnere alt som ligger "under" eiendommen (tror dette er mest brukervennlig)
 
-# Senere arbeid / kjekt å ha / TODO
--
