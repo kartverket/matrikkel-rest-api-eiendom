@@ -14,6 +14,7 @@ jobs:
       contents: write
       packages: write
       actions: read
+      id-token: write
 
     outputs:
       version: ${{ steps.set_output.outputs.version }}
@@ -51,11 +52,12 @@ jobs:
 
   deploy-argo:
     needs: build
-    uses: kartverket/smia-apps/.github/workflows/release-app.yml@main
+    permissions:
+      id-token: write
+    uses: kartverket/smia-apps/.github/workflows/release-app-octo-sts.yml@main
     with:
       application: eiendom
       version: ${{ needs.build.outputs.version }}
       namespace: "smia-tjenester-main"
       deploy_dev: true
-    secrets:
-      PAT_TOKEN: ${{ secrets.PAT_ARGOCD }}
+      identity: 'matrikkel-rest-api-eiendom'
