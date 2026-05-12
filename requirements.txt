@@ -3,7 +3,7 @@ Flask==3.0.*
 marshmallow==3.20.*
 psycopg2-binary==2.9.*
 webargs==8.7.*
-apispec-webframeworks==0.5.*
+apispec-webframeworks==1.2.*
 gunicorn==22.0.0
 JSON-log-formatter==0.5.*
 Werkzeug==3.0.*
