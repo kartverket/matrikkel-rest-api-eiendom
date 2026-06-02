@@ -1,0 +1,55 @@
+apiVersion: skiperator.kartverket.no/v1alpha1
+kind: Application
+metadata:
+  name: matrikkel-rest-api-eiendom
+  namespace: matrikkel-main
+spec:
+  image: "{{image}}" # ghcr.io/kartverket/eiendom:v0.0.22@sha256:25406321ff93571613a49b5cb83365ba900faf38d25130077dc1d6aaabb7a01f
+  port: 5000
+# TODO ingen ingress spesifisert i smia-apps. Forsøker å finne ut hvordan ting funker der.
+#  ingresses:
+#    - api.kartverket.no
+
+  replicas:
+    min: 3
+    max: 5
+  resources:
+    limits:
+      memory: 2G
+    requests:
+      cpu: 100m
+      memory: 256M
+
+  liveness:
+    failureThreshold: 3
+    initialDelay: 0
+    path: /eiendom/v1/healthx
+    period: 10
+    port: 5000
+    successThreshold: 1
+    timeout: 1
+  readiness:
+    failureThreshold: 3
+    initialDelay: 0
+    path: /eiendom/v1/healthz
+    period: 10
+    port: 5000
+    successThreshold: 1
+    timeout: 1
+  prometheus:
+    allowAllMetrics: false
+    path: /eiendom/v1/metrics
+    port: 5000
+    scrapeInterval: 60s
+
+  databases:
+    - name: matrikkel-rest-api-eiendom
+      envName: EIENDOM_DB_URI
+
+  env:
+    - name: EIENDOM_DB_USER
+      value: "dbles"
+    - name: EIENDOM_DB_PASSWORD
+      gsmSecretName: "prod-matrikkel-rest-api-eiendom-db-user-password"
+    - name: EIENDOM_INGRESS
+      value: "api.kartverket.no"

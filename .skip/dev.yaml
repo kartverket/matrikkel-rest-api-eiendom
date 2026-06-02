@@ -1,0 +1,53 @@
+apiVersion: skiperator.kartverket.no/v1alpha1
+kind: Application
+metadata:
+  name: matrikkel-rest-api-eiendom
+  namespace: matrikkel-main
+spec:
+  image: "{{image}}"
+  port: 5000
+  ingresses:
+    - eiendom.atkv3-dev.kartverket-intern.cloud
+
+  # TODO, ingen replicas i dev i smia-apps. Mulig vi ikke trenger dev?
+  replicas: 0
+  resources:
+    limits:
+      memory: 2G
+    requests:
+      cpu: 100m
+      memory: 256M
+
+  liveness:
+    failureThreshold: 3
+    initialDelay: 0
+    path: /eiendom/v1/healthx
+    period: 10
+    port: 5000
+    successThreshold: 1
+    timeout: 1
+  readiness:
+    failureThreshold: 3
+    initialDelay: 0
+    path: /eiendom/v1/healthz
+    period: 10
+    port: 5000
+    successThreshold: 1
+    timeout: 1
+  prometheus:
+    allowAllMetrics: false
+    path: /eiendom/v1/metrics
+    port: 5000
+    scrapeInterval: 60s
+
+  databases:
+    - name: matrikkel-rest-api-eiendom
+      envName: EIENDOM_DB_URI
+
+  env:
+    - name: EIENDOM_DB_USER
+      value: "dbles"
+    - name: EIENDOM_DB_PASSWORD
+      gsmSecretName: "dev-matrikkel-rest-api-eiendom-db-user-password"
+    - name: EIENDOM_INGRESS
+      value: eiendom.atkv3-dev.kartverket-intern.cloud

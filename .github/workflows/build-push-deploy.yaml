@@ -17,7 +17,7 @@ jobs:
       id-token: write
 
     outputs:
-      version: ${{ steps.set_output.outputs.version }}
+      image: ${{ steps.set_output.outputs.image }}
 
     steps:
       - name: Checkout Repo
@@ -48,16 +48,47 @@ jobs:
         id: set_output
         run: |
           echo "Full Image URL: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}@${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
-          echo "version=${{ steps.tag_version.outputs.new_tag }}@${{ steps.build.outputs.digest }}" >> $GITHUB_OUTPUT
+          echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_OUTPUT
 
-  deploy-argo:
-    needs: build
+  deploy-dev:
+    name: Deploy to dev
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    needs:
+      - build
     permissions:
+      actions: read
+      contents: read
       id-token: write
-    uses: kartverket/smia-apps/.github/workflows/release-app-octo-sts.yml@main
-    with:
-      application: eiendom
-      version: ${{ needs.build.outputs.version }}
-      namespace: "smia-tjenester-main"
-      deploy_dev: true
-      identity: 'matrikkel-rest-api-eiendom'
+    steps:
+      - name: Deploy to dev
+        uses: kartverket/matrikkel-actions/heimdall-deploy@main
+        with:
+          cluster: 'atkv3-dev'
+          resource: '.skip/dev.yaml'
+          var: |
+            image=${{ needs.build.outputs.image }}
+
+  deploy-prod:
+    name: Deploy to prod
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+    needs:
+      - build
+      - deploy-dev
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    steps:
+      - name: Deploy to prod
+        uses: kartverket/matrikkel-actions/heimdall-deploy@main
+        with:
+          cluster: 'atkv3-prod'
+          resource: '.skip/prod.yaml'
+          var: |
+            image=${{ needs.build.outputs.image }}
+        
+            
