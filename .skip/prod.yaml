@@ -61,7 +61,7 @@ metadata:
   name: api-ingresses
 spec:
   gateways:
-    - istio-gateways/api-kartverket-ingress
+    - istio-gateways/api-kartverket-ingress # ref: https://github.com/kartverket/skip-apps/blob/main/env/atkv3-prod/istio-gateways/resources/gateways/common-ingress-gateway.yaml
   hosts:
     - api.kartverket.no
   http:
