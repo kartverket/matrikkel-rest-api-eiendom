@@ -6,9 +6,8 @@ metadata:
 spec:
   image: "{{image}}" # ghcr.io/kartverket/eiendom:v0.0.22@sha256:25406321ff93571613a49b5cb83365ba900faf38d25130077dc1d6aaabb7a01f
   port: 5000
-# TODO ingen ingress spesifisert i smia-apps. Forsøker å finne ut hvordan ting funker der.
-#  ingresses:
-#    - api.kartverket.no
+
+  # No ingress here, since we havne to handle it manuallu
 
   replicas:
     min: 3
@@ -53,3 +52,48 @@ spec:
       gsmSecretName: "prod-matrikkel-rest-api-eiendom-db-user-password"
     - name: EIENDOM_INGRESS
       value: "api.kartverket.no"
+---
+# SKIP Støtter ikke path-routing på tvers av namespaces
+# Derfor må vi manuelt koble oss mot en gateway for å trafikk inn til appen våres.
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: api-ingresses
+spec:
+  gateways:
+    - istio-gateways/api-kartverket-ingress
+  hosts:
+    - api.kartverket.no
+  http:
+    - name: "matrikkel-rest-api-eiendom"
+      match:
+        - port: 443
+          uri:
+            prefix: "/eiendom/v1"
+      route:
+        - destination:
+            host: "matrikkel-rest-api-eiendom"
+            port:
+              number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: "matrikkel-rest-api-eiendom-allow-tcp"
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              'kubernetes.io/metadata.name': 'istio-gateways'
+          podSelector:
+            matchLabels:
+              istio: ingressgateway
+      ports:
+        - port: 5000
+          protocol: TCP
+  podSelector:
+    matchLabels:
+      app: "matrikkel-rest-api-eiendom"
+  policyTypes:
+    - Ingress

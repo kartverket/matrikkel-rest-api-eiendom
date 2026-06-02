@@ -51,3 +51,48 @@ spec:
       gsmSecretName: "dev-matrikkel-rest-api-eiendom-db-user-password"
     - name: EIENDOM_INGRESS
       value: eiendom.atkv3-dev.kartverket-intern.cloud
+---
+# SKIP Støtter ikke path-routing på tvers av namespaces
+# Derfor må vi manuelt koble oss mot en gateway for å trafikk inn til appen våres.
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: api-ingresses
+spec:
+  gateways:
+    - istio-gateways/api-test-kartverket-ingress
+  hosts:
+    - api.test.kartverket.no
+  http:
+    - name: "matrikkel-rest-api-eiendom"
+      match:
+        - port: 443
+          uri:
+            prefix: "/eiendom/v1"
+      route:
+        - destination:
+            host: "matrikkel-rest-api-eiendom"
+            port:
+              number: 5000
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: "matrikkel-rest-api-eiendom-allow-tcp"
+spec:
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              'kubernetes.io/metadata.name': 'istio-gateways'
+          podSelector:
+            matchLabels:
+              istio: ingressgateway
+      ports:
+        - port: 5000
+          protocol: TCP
+  podSelector:
+    matchLabels:
+      app: "matrikkel-rest-api-eiendom"
+  policyTypes:
+    - Ingress
