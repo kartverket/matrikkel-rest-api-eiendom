@@ -61,7 +61,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - name: Deploy to dev
+      - name: Deploy to prodtest
         uses: kartverket/matrikkel-actions/heimdall-deploy@main
         with:
           cluster: 'atkv3-prod'
