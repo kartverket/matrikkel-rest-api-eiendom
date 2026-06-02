@@ -86,6 +86,7 @@ jobs:
       - name: Deploy to prod
         uses: kartverket/matrikkel-actions/heimdall-deploy@main
         with:
+          dry_run: 'true'
           cluster: 'atkv3-prod'
           resource: '.skip/prod.yaml'
           var: |
