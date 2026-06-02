@@ -64,8 +64,8 @@ jobs:
       - name: Deploy to dev
         uses: kartverket/matrikkel-actions/heimdall-deploy@main
         with:
-          cluster: 'atkv3-dev'
-          resource: '.skip/dev.yaml'
+          cluster: 'atkv3-prod'
+          resource: '.skip/prodtest.yaml'
           var: |
             image=${{ needs.build.outputs.image }}
 

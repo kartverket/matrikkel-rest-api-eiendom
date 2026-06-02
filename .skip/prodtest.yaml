@@ -2,7 +2,7 @@ apiVersion: skiperator.kartverket.no/v1alpha1
 kind: Application
 metadata:
   name: matrikkel-rest-api-eiendom
-  namespace: matrikkel-main
+  namespace: matrikkel-prodtest
 spec:
   image: "{{image}}"
   port: 5000
