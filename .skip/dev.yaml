@@ -6,11 +6,12 @@ metadata:
 spec:
   image: "{{image}}"
   port: 5000
-  ingresses:
-    - eiendom.atkv3-dev.kartverket-intern.cloud
 
-  # TODO, ingen replicas i dev i smia-apps. Mulig vi ikke trenger dev?
-  replicas: 0
+  # No ingress here, since we havne to handle it manuallu
+
+  replicas:
+    min: 3
+    max: 5
   resources:
     limits:
       memory: 2G
@@ -50,7 +51,7 @@ spec:
     - name: EIENDOM_DB_PASSWORD
       gsmSecretName: "dev-matrikkel-rest-api-eiendom-db-user-password"
     - name: EIENDOM_INGRESS
-      value: eiendom.atkv3-dev.kartverket-intern.cloud
+      value: "api.test.kartverket.no"
 ---
 # SKIP Støtter ikke path-routing på tvers av namespaces
 # Derfor må vi manuelt koble oss mot en gateway for å trafikk inn til appen våres.
