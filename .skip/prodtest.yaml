@@ -7,7 +7,7 @@ spec:
   image: "{{image}}"
   port: 5000
 
-  # No ingress here, since we havne to handle it manuallu
+  # No ingress here, since we have to handle it manually
 
   replicas:
     min: 3
