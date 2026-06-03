@@ -64,6 +64,7 @@ jobs:
       - name: Deploy to prodtest
         uses: kartverket/matrikkel-actions/heimdall-deploy@main
         with:
+          wait: 'false'
           cluster: 'atkv3-prod'
           resource: '.skip/prodtest.yaml'
           var: |
