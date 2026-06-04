@@ -4,10 +4,10 @@ metadata:
   name: matrikkel-rest-api-eiendom
   namespace: matrikkel-main
 spec:
-  image: "{{image}}" # ghcr.io/kartverket/eiendom:v0.0.22@sha256:25406321ff93571613a49b5cb83365ba900faf38d25130077dc1d6aaabb7a01f
+  image: "{{image}}"
   port: 5000
 
-  # No ingress here, since we havne to handle it manuallu
+  # No ingress here, since we have to handle it manually
 
   replicas:
     min: 3
