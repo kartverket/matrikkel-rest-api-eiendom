@@ -5,7 +5,7 @@ psycopg2-binary==2.9.*
 webargs==8.7.*
 apispec-webframeworks==1.2.*
 gunicorn==26.0.0
-JSON-log-formatter==1.1.*
+JSON-log-formatter==1.2.*
 Werkzeug==3.1.*
 prometheus-flask-exporter==0.23.*
 python-json-logger==4.1.*
