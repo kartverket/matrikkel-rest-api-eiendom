@@ -7,6 +7,10 @@ env:
   DOCKER_REGISTRY: ghcr.io
   IMAGE_NAME: kartverket/eiendom
 
+concurrency:
+  group: build-push-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
