@@ -14,10 +14,10 @@ spec:
     max: 5
   resources:
     limits:
-      memory: 2G
+      memory: 1Gi
     requests:
       cpu: 100m
-      memory: 256M
+      memory: 512Mi
 
   liveness:
     failureThreshold: 3
