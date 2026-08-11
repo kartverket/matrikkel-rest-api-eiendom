@@ -10,4 +10,4 @@ Werkzeug==3.1.*
 prometheus-flask-exporter==0.23.*
 python-json-logger==4.1.*
 Flask-Cors==4.0.*
-setuptools==83.0.0
+setuptools==84.0.0
