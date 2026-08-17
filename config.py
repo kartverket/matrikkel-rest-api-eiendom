@@ -13,5 +13,6 @@ is_dev = True if app_ingress == "localhost:5000" else False
 set_json_as_ascii = False
 locale_choice = 'no_NO.UTF-8'
 sort_json_keys = False
-
+min_db_connections = 2
+max_db_connections = 10
 db_srid = 4258
