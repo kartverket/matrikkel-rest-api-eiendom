@@ -15,4 +15,4 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-CMD [ "gunicorn", "-c" , "gunicorn_config.py", "main:app"]
+CMD [ "gunicorn", "-c" , "gunicorn_config.py", "--no-control-socket", "main:app"]
