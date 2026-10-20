@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3-alpine@sha256:f6a589d43c42b9e7f7dc67a12d37132491f362859a5d750607710cc56da3bc72
+FROM python:3-alpine@sha256:5aa3872d12a059e22fda84b7556a8d103dc9dff314d044d2d47d5785378c5856
 
 EXPOSE 5000
 
