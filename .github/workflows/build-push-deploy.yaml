@@ -12,6 +12,25 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  version:
+    name: Calculate Version
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    outputs:
+      version: ${{ steps.version-string.outputs.version }}
+      image: ${{ steps.version-string.outputs.image }}
+
+    steps:
+      - name: Generate version string
+        id: version-string
+        shell: bash
+        run: |
+          version="$(date -u '+%Y.%m.%d-%H.%M')-$(echo "${GITHUB_SHA}" | cut -c1-7)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${version}" >> "$GITHUB_OUTPUT"
+
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -20,9 +39,8 @@ jobs:
       actions: read
       id-token: write
 
-    outputs:
-      image: ${{ steps.set_output.outputs.image }}
-
+    needs:
+      - version
     steps:
       - name: Checkout Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 #7.0.1
@@ -34,25 +52,20 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ github.token }}
 
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@af99e60ce8132224b8e6ebab5023449fe256ed46 #7.0.0
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build docker image and push
         id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc #7.4.0
         with:
           context: .
-          tags: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }} , ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ needs.version.outputs.image }} , ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           push: true
 
-      - name: Summarize Image Digest and Set Output
-        id: set_output
+      - name: Tag commit med artifaktversjon
+        if: github.ref == 'refs/heads/main'
         run: |
-          echo "Full Image URL: ${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}@${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
-          echo "image=${{ env.DOCKER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag_version.outputs.new_tag }}" >> $GITHUB_OUTPUT
+          git tag ${{ needs.version.outputs.version }}
+          git push origin ${{ needs.version.outputs.version }}
+
 
   deploy-dev:
     name: Deploy to dev
@@ -60,6 +73,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs:
       - build
+      - version
     permissions:
       actions: read
       contents: read
@@ -71,7 +85,7 @@ jobs:
           cluster: 'atkv3-prod'
           resource: '.skip/prodtest.yaml'
           var: |
-            image=${{ needs.build.outputs.image }}
+            image=${{ needs.version.outputs.image }}
 
   deploy-prod:
     name: Deploy to prod
@@ -80,6 +94,7 @@ jobs:
     environment:
       name: production
     needs:
+      - version
       - build
       - deploy-dev
     permissions:
@@ -93,6 +108,6 @@ jobs:
           cluster: 'atkv3-prod'
           resource: '.skip/prod.yaml'
           var: |
-            image=${{ needs.build.outputs.image }}
+            image=${{ needs.version.outputs.image }}
         
             
