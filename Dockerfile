@@ -26,6 +26,8 @@ COPY --from=builder /app/deps /app/deps
 COPY --from=builder /app/locale /app/locale
 COPY . .
 
+USER 65532:65532
+
 EXPOSE 5000
 
 CMD [ "python", "-m", "gunicorn", "-c" , "gunicorn_config.py", "--no-control-socket", "main:app"]
