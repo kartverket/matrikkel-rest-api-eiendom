@@ -45,13 +45,15 @@ class DbConn():
             else:
                 self.cur.execute(query)
         except Exception as e:
-            logger.error(
-                f'Encountered exception when performing query with input: "{userInput}" : {e}')
+            msg = f'Encountered exception when performing query with input: "{userInput}" : {e}'
             if "invalid coordinate" in str(e).lower():
+                logger.warning(msg)
                 abort(400, "Ugyldige koordinater for oppgitt koordinatsystem. Sjekk at ost/nord er riktig vei og at koordsys stemmer med koordinatene.")
             elif "srid" in str(e).lower():
+                logger.warning(msg)
                 abort(400, "Koordinatsystemet/SRID er ikke støttet.")
             else:
+                logger.error(msg)
                 abort(500, 'Ukjent feil oppstod.')
         result = self.cur.fetchall()
         self.conn.commit()
