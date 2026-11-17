@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.15.2-slim-trixie@sha256:8c13a3f37a6a5b71498228e902c4b9f51c1f7900d49fabf71f9a650c6120e0d0 AS builder
+FROM python:3.15.2-slim-trixie@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928 AS builder
 
 WORKDIR /app
 
@@ -15,7 +15,7 @@ RUN apt-get update \
     && localedef -i nb_NO -f UTF-8 /app/locale/no_NO.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
-FROM dhi.io/python:3.15.2-debian13@sha256:d18cc222a379b8caa077ce41db24b77e351934dc4c4966d52225dfe40efa1e61 AS runtime
+FROM dhi.io/python:3.15.2-debian13@sha256: AS runtime
 
 WORKDIR /app
 
