@@ -20,6 +20,9 @@ updates:
     directory: ".github/workflows"
     schedule:
       interval: "weekly"
+    cooldown:
+      exclude: # ikke cooldown for interne pakker
+        - "kartverket/*"
   - package-ecosystem: "docker"
     directory: "/"
     registries:
